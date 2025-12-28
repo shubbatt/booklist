@@ -12,72 +12,48 @@ export function useLoadData() {
         if (!isAuthenticated || !_hasHydrated) return;
 
         const loadData = async () => {
-            try {
-                // Load all data from API in parallel
-                const [
-                    schoolsRes,
-                    outletsRes,
-                    booklistsRes,
-                    redemptionsRes,
-                    stockRes,
-                    optionItemsRes,
-                    usersRes,
-                ] = await Promise.all([
-                    fetch('/api/schools'),
-                    fetch('/api/outlets'),
-                    fetch('/api/booklists'),
-                    fetch('/api/redemptions'),
-                    fetch('/api/stock'),
-                    fetch('/api/option-items'),
-                    fetch('/api/users'),
-                ]);
+            console.log('🔄 Loading data from database...');
 
-                // Check if all responses are OK
-                const responses = [
-                    { name: 'schools', res: schoolsRes },
-                    { name: 'outlets', res: outletsRes },
-                    { name: 'booklists', res: booklistsRes },
-                    { name: 'redemptions', res: redemptionsRes },
-                    { name: 'stock', res: stockRes },
-                    { name: 'option-items', res: optionItemsRes },
-                    { name: 'users', res: usersRes },
-                ];
-
-                for (const { name, res } of responses) {
+            // Load each endpoint individually with error handling
+            const loadEndpoint = async (url: string, name: string) => {
+                try {
+                    const res = await fetch(url);
                     if (!res.ok) {
-                        console.error(`❌ Failed to load ${name}: ${res.status} ${res.statusText}`);
-                        const text = await res.text();
-                        console.error(`Response: ${text.substring(0, 200)}`);
+                        console.error(`❌ ${name}: ${res.status} ${res.statusText}`);
+                        return [];
                     }
+                    const data = await res.json();
+                    console.log(`✅ ${name}: ${data.length} items`);
+                    return data;
+                } catch (error) {
+                    console.error(`❌ ${name} failed:`, error);
+                    return [];
                 }
+            };
 
-                const [schools, outlets, booklists, redemptions, stock, optionItems, users] =
-                    await Promise.all([
-                        schoolsRes.json(),
-                        outletsRes.json(),
-                        booklistsRes.json(),
-                        redemptionsRes.json(),
-                        stockRes.json(),
-                        optionItemsRes.json(),
-                        usersRes.json(),
-                    ]);
+            const [schools, outlets, booklists, redemptions, stock, optionItems, users] = await Promise.all([
+                loadEndpoint('/api/schools', 'Schools'),
+                loadEndpoint('/api/outlets', 'Outlets'),
+                loadEndpoint('/api/booklists', 'Booklists'),
+                loadEndpoint('/api/redemptions', 'Redemptions'),
+                loadEndpoint('/api/stock', 'Stock'),
+                loadEndpoint('/api/option-items', 'Option Items'),
+                loadEndpoint('/api/users', 'Users'),
+            ]);
 
-                // Update store with data from database
-                useStore.setState({
-                    schools,
-                    outlets,
-                    locations: outlets, // Locations are outlets
-                    booklists,
-                    redemptions,
-                    voucherStock: stock,
-                    optionItems,
-                    users,
-                });
+            // Update store with data from database
+            useStore.setState({
+                schools,
+                outlets,
+                locations: outlets, // Locations are outlets
+                booklists,
+                redemptions,
+                voucherStock: stock,
+                optionItems,
+                users,
+            });
 
-                console.log('✅ Data loaded from database');
-            } catch (error) {
-                console.error('❌ Failed to load data:', error);
-            }
+            console.log('✅ Data loaded from database');
         };
 
         loadData();
