@@ -8,10 +8,14 @@ import { DayEndReport } from './components/DayEndReport';
 import { Settings } from './components/Settings';
 import { Login } from './components/Login';
 import { useStore } from './store';
+import { useLoadData } from './hooks/useLoadData';
 import './App.css';
 
 function App() {
   const { activeView, isAuthenticated, _hasHydrated } = useStore();
+
+  // Load all data from database on startup
+  useLoadData();
 
   // Wait for hydration to complete to prevent login screen flash
   if (!_hasHydrated) {

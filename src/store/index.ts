@@ -545,16 +545,9 @@ export const useStore = create<AppState>()(
     }),
     {
       name: 'booklist-storage',
-      // partialize allows us to pick which fields to save to localStorage
+      // Only persist auth state and drafts - all data comes from database
       partialize: (state) => ({
-        booklists: state.booklists,
-        redemptions: state.redemptions,
-        schools: state.schools,
-        locations: state.locations,
-        staff: state.staff,
-        voucherStock: state.voucherStock,
-        dayEndReports: state.dayEndReports,
-        optionItems: state.optionItems,
+        // Drafts (work in progress, not yet saved to DB)
         drafts: state.drafts,
         currentDraftId: state.currentDraftId,
         // Auth state to persist session
