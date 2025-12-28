@@ -312,6 +312,31 @@ app.get('/api/staff', (req, res) => {
 // Staff are now managed through the users endpoint
 // No separate POST endpoint needed for staff
 
+// ==================== OPTION ITEMS ====================
+
+app.get('/api/option-items', (req, res) => {
+  try {
+    const optionItems = db.prepare('SELECT * FROM option_items ORDER BY name').all();
+    res.json(optionItems);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/option-items', (req, res) => {
+  try {
+    const { name, key, enabled, defaultChecked } = req.body;
+    const id = randomUUID();
+    db.prepare(`
+      INSERT INTO option_items (id, name, key, enabled, default_checked)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(id, name, key, enabled ? 1 : 0, defaultChecked ? 1 : 0);
+    res.json({ id, name, key, enabled, defaultChecked });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ==================== BOOKLISTS ====================
 
 app.get('/api/booklists', (req, res) => {
