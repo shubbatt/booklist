@@ -32,6 +32,25 @@ export function useLoadData() {
                     fetch('/api/users'),
                 ]);
 
+                // Check if all responses are OK
+                const responses = [
+                    { name: 'schools', res: schoolsRes },
+                    { name: 'outlets', res: outletsRes },
+                    { name: 'booklists', res: booklistsRes },
+                    { name: 'redemptions', res: redemptionsRes },
+                    { name: 'stock', res: stockRes },
+                    { name: 'option-items', res: optionItemsRes },
+                    { name: 'users', res: usersRes },
+                ];
+
+                for (const { name, res } of responses) {
+                    if (!res.ok) {
+                        console.error(`❌ Failed to load ${name}: ${res.status} ${res.statusText}`);
+                        const text = await res.text();
+                        console.error(`Response: ${text.substring(0, 200)}`);
+                    }
+                }
+
                 const [schools, outlets, booklists, redemptions, stock, optionItems, users] =
                     await Promise.all([
                         schoolsRes.json(),
