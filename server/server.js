@@ -18,12 +18,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.use(cors());
 app.use(express.json());
 
-// In production, serve the static frontend files
-if (isProduction) {
-  const distPath = join(__dirname, '..', 'dist');
-  app.use(express.static(distPath));
-}
-
 // Initialize database
 try {
   initDatabase();
@@ -465,9 +459,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-// In production, serve index.html for all non-API routes (SPA support)
+// In production, serve static files and SPA
 if (isProduction) {
   const distPath = join(__dirname, '..', 'dist');
+
+  // Serve static assets (CSS, JS, images)
+  app.use(express.static(distPath));
+
+  // Serve index.html for all non-API routes (SPA support)
   app.get('*', (req, res) => {
     res.sendFile(join(distPath, 'index.html'));
   });
