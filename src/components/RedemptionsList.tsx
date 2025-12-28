@@ -29,10 +29,10 @@ export function RedemptionsList() {
 
   const filteredRedemptions = redemptions.filter(r => {
     const matchesSearch =
-      r.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.parentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.voucherId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.contactNo.includes(searchQuery);
+      (r.studentName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.parentName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.voucherId || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (r.contactNo || '').includes(searchQuery);
 
     const matchesStatus = statusFilter === 'all' || r.deliveryStatus === statusFilter;
 
